@@ -14,10 +14,22 @@ npm install
 ## 本地运行 Node Serve（Running Serve on local）
 
 ```bash
-npm start
+node start
 ```
 
 网页建立 WebSocket 连接，请求地址 `http:localhost:8001`
+
+## 测试 demo
+
+```sh
+http-server
+```
+
+打开 `localhost:8080`，点击「连接」
+
+若遇到 `[Error: Cannot connect]`，可尝试重启 mindwave
+
+---
 
 本项目用到：
 

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+</head>
+
+<body>
+  <div id="div"></div>
+
+  <div id="main" style="width: 100%;height:400px;"></div>
+  <button id="button">连接</button>
+
+  <script src="https://cdn.bootcss.com/echarts/4.2.1/echarts.min.js"></script>
+  <script>
+
+  let myChart = echarts.init(document.getElementById('main'));
+  let option = {
+    xAxis: {
+        type: 'category',
+        data: []
+    },
+    yAxis: {
+        type: 'value'
+    },
+    series: [{
+        data: [],
+        type: 'line',
+        smooth: true
+    },
+    {
+        data: [],
+        type: 'line',
+        smooth: true
+    }]
+  };
+
+  // 使用刚指定的配置项和数据显示图表。
+  myChart.setOption(option);
+
+  
+  let dev = document.getElementById('div')
+  let button = document.getElementById('button')
+
+  
+
+  document.getElementById('button').addEventListener('click', () => {
+    const ws = new WebSocket('ws://localhost:8001');
+    ws.binaryType = "arraybuffer";
+
+    // 连接成功
+    ws.addEventListener('open', function(event) {
+      console.log('连接成功');
+      ws.send('Hello Server!');
+    });
+
+    // 收到服务器数据
+    ws.addEventListener("message", function(event) {
+      console.log('收到服务器数据');
+      let data = event.data;
+      let d = new Uint8Array(data)
+      console.log('专注度(Attention):' + d[d.length - 4] + ' 放松度(Meditation):' + d[d.length - 2]);
+      dev.textContent = '专注度(Attention): ' + d[d.length - 4] + '     放松度(Meditation): ' + d[d.length - 2]
+
+      let attentionArr = [];
+      let meditationArr = [];
+      let attention = d[d.length - 4];
+      let meditation = d[d.length - 2];
+      let seriesData = option.series[0].data
+      let seriesData2 = option.series[1].data
+
+      console.log(attention)
+      console.log(seriesData)
+
+      if (attention && meditation) {
+        attentionArr = seriesData.push(attention)
+        meditationArr = seriesData2.push(meditation)
+      }
+
+      myChart.setOption({
+          xAxis: {
+              data: data.categories
+          },
+          series: [{
+              name: 'Attention',
+              data: seriesData
+          },{
+            name: 'Meditation',
+            data: seriesData2
+          }]
+        });
+
+    });
+
+    // 连接关闭
+    ws.addEventListener("close", function(event) {
+      console.log('连接关闭')
+      let code = event.code;
+      let reason = event.reason;
+      let wasClean = event.wasClean;
+      console.log(code)
+      console.log(reason)
+      console.log(wasClean)
+    });
+
+    // 报错
+    ws.addEventListener("error", function(event) {
+      console.log('error')
+      console.log(event)
+    });
+
+  })
+
+  
+
+
+
+
+  // ArrayBuffer 转为字符串，参数为 ArrayBuffer 对象
+  function ab2str(buf) {
+    // 注意，如果是大型二进制数组，为了避免溢出，必须一个一个字符地转
+    if (buf && buf.byteLength < 1024) {
+      return String.fromCharCode.apply(null, new Uint16Array(buf));
+    }
+    const bufView = new Uint16Array(buf);
+    const len = bufView.length;
+    const bstr = new Array(len);
+    for (let i = 0; i < len; i++) {
+      bstr[i] = String.fromCharCode.call(null, bufView[i]);
+    }
+    return bstr.join('');
+  }
+
+
+  // var ws = new WebSocket('ws://localhost:8001');
+
+  // ws.onopen = function(evt) {
+  //   console.log('Connection open ...');
+  //   ws.send('Hello WebSockets!');
+  // };
+
+  // ws.onmessage = function(evt) {
+  //   console.log('Received Message: ' + evt.data);
+  //   ws.close();
+  // };
+
+  // ws.onclose = function(evt) {
+  //   console.log('Connection closed.');
+  // };
+  </script>
+</body>
+
+</html>

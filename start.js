@@ -1,18 +1,22 @@
 const WebSocket = require('ws');
 const bluetooth = require('node-bluetooth');
 
-const wss = new WebSocket.Server({ port: 8001 });
- 
+const device_address = '00-81-f9-29-bd-7d'
+const device2_address = '00-81-f9-2A-b1-f6'
+const device_name = 'MindWave Mobile'
+const device_channel = 1
 
-const address = '00-81-f9-29-bd-7d'
-const channel = 1
+// const device = new bluetooth.DeviceINQ();
+// device.listPairedDevices(console.log);
+
+const wss = new WebSocket.Server({ port: 8001 });
 
 wss.on('connection', function connection(ws) {
   ws.on('message', function incoming(message) {
     console.log('received: %s', message);
   });
 
-  bluetooth.connect(address, channel, (err, connection) => {
+  bluetooth.connect(device2_address, device_channel, (err, connection) => {
     if(err) return console.error(err);
     connection.on('data', (buffer) => {
 
@@ -30,6 +34,9 @@ wss.on('connection', function connection(ws) {
 
 
 
+
+
+
 /**
  * find devices
  */
@@ -38,6 +45,8 @@ wss.on('connection', function connection(ws) {
 // .on('found', function found(address, name){
 //   console.log('Found: ' + address + ' with name ' + name);
 // }).scan();
+
+
 
 
 /**
