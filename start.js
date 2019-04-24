@@ -11,19 +11,32 @@ const device_channel = 1
 
 const wss = new WebSocket.Server({ port: 8001 });
 
-wss.on('connection', function connection(ws) {
+wss.on('connection', function connection(ws, req) {
+
+  ws.on('open', function open() {
+    console.log('connected');
+  });
+   
+  ws.on('close', function close() {
+    console.log('disconnected');
+  });
+
   ws.on('message', function incoming(message) {
     console.log('received: %s', message);
   });
 
-  bluetooth.connect(device2_address, device_channel, (err, connection) => {
+  bluetooth.connect(device_address, device_channel, (err, connection) => {
     if(err) return console.error(err);
     connection.on('data', (buffer) => {
 
       if (buffer.length === 36) {
-        console.log(buffer)
-        // console.log(buffer.length)
-        ws.send(buffer);
+        console.log(buffer[buffer.length-2], buffer[buffer.length-4])
+        try {
+          ws.send(buffer);
+        } catch (e) {
+          console.log('handle error')
+          console.log(e)
+        }
       }
     });
   });
