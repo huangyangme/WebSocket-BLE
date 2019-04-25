@@ -3,6 +3,7 @@ const bluetooth = require('node-bluetooth');
 
 const device_address = '00-81-f9-29-bd-7d'
 const device2_address = '00-81-f9-2A-b1-f6'
+
 const device_name = 'MindWave Mobile'
 const device_channel = 1
 
